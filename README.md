@@ -19,44 +19,13 @@ A beautiful web application for displaying pinball machine high scores from your
 - **⚡ Auto-refresh** - Configurable periodic refresh keeps scores current
 - **🔧 Easy Setup** - Simple Docker deployment with minimal configuration
 
-## 🎯 Live Demo
-
-**[👀 Try the Interactive Demo](https://brombomb.github.io/stern-home-leaderboard/)**
-
-Experience the leaderboard features with sample data including:
-
-- Game selection from Stern's catalog
-- Dynamic themes and styling
-- Toast notifications
-
-<div align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <img src="screenshots/fullscreen.png" alt="Fullscreen Mode" width="400">
-        <br>
-        <strong>Fullscreen Kiosk Mode</strong>
-        <br>
-        <em>Perfect for displays next to your machines</em>
-      </td>
-      <td align="center">
-        <img src="screenshots/tech-alerts.png" alt="Tech Alerts" width="400">
-        <br>
-        <strong>Machine Status Alerts</strong>
-        <br>
-        <em>Visual indicators for online/offline status</em>
-      </td>
-    </tr>
-  </table>
-</div>
-
 ## 🚀 Quick Start (Docker Compose)
 
-Use the published images (no build required):
+Build and run the app from this checkout:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/brombomb/stern-home-leaderboard.git
+git clone https://github.com/way2gloomy/stern-home-leaderboard.git
 cd stern-home-leaderboard
 
 # 2. Create your environment file
@@ -71,7 +40,7 @@ open http://localhost:3000
 # (or your configured FRONTEND_PORT if changed)
 ```
 
-Images are published for `linux/amd64` and `linux/arm64` (Raspberry Pi friendly).
+The compose files build the frontend and backend images from the local source tree by default, which is the workflow used for this fork and Raspberry Pi deployments.
 
 ## 🔐 Credentials and Security
 
@@ -133,7 +102,7 @@ Iterate locally with live reload using the dev compose file:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/brombomb/stern-home-leaderboard.git
+git clone https://github.com/way2gloomy/stern-home-leaderboard.git
 cd stern-home-leaderboard
 
 # 2. Create your environment file
@@ -161,7 +130,7 @@ Hot reload is enabled via volume mounts; dependencies stay inside the container 
 
 ## 🙏 Attribution
 
-This project is based on the work of the original author, [brombomb](https://github.com/brombomb). Their original implementation and project direction are the foundation for this fork and its Raspberry Pi / local-home-network hardening work.
+This project is based on the work of the original author, [brombomb](https://github.com/brombomb). The current fork keeps that foundation while adding Raspberry Pi and local-home-network hardening work.
 
 If you use or adapt this project, please keep that attribution in place.
 
