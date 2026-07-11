@@ -125,6 +125,8 @@ On a Raspberry Pi, the helper script also installs a systemd service so the comp
 
 If you want a credential-free reinstall path, use the helper script at [scripts/pi-reinstall.sh](scripts/pi-reinstall.sh). It downloads the public repo archive directly from GitHub and re-runs the Pi setup without requiring Git credentials.
 
+The Pi setup also creates a local `.env` file and a `secrets/` directory for the Stern credentials so the stack has a sane starting point after a fresh install.
+
 ## 🛠️ Quick Start for Development
 
 Iterate locally with live reload using the dev compose file:
