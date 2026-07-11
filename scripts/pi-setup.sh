@@ -23,7 +23,9 @@ INSTALL_USER="${SUDO_USER:-$(id -un)}"
 
 mkdir -p "$APP_DIR"
 cp "$REPO_ROOT/scripts/stern-home-leaderboard.service" "$SERVICE_FILE"
-cp -a "$REPO_ROOT/." "$APP_DIR/"
+if [[ "$REPO_ROOT" != "$APP_DIR" ]]; then
+  cp -a "$REPO_ROOT/." "$APP_DIR/"
+fi
 mkdir -p "$APP_DIR/secrets"
 chmod 700 "$APP_DIR/secrets"
 if [[ ! -f "$APP_DIR/.env" ]]; then

@@ -38,7 +38,7 @@ rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 cp -a "$EXTRACTED_DIR/." "$INSTALL_DIR/"
 
-if [[ -d "$TMP_DIR/secrets-backup" ]]; then
+if [[ -d "$INSTALL_DIR/secrets" && -d "$TMP_DIR/secrets-backup" ]]; then
   mkdir -p "$INSTALL_DIR/secrets"
   cp -a "$TMP_DIR/secrets-backup/." "$INSTALL_DIR/secrets/"
 fi
