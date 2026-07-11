@@ -1,3 +1,5 @@
+const { getRequiredEnvValue } = require('./config');
+
 class SternAuth {
   static authData = null;
   static cookies = null;
@@ -169,16 +171,8 @@ class SternAuth {
   }
 
   static async initializeAuth() {
-    const username = process.env.STERN_USERNAME;
-    const password = process.env.STERN_PASSWORD;
-
-    if (!username || !password) {
-      console.error(
-        'STERN_USERNAME and STERN_PASSWORD environment variables are required',
-      );
-      // eslint-disable-next-line no-process-exit
-      process.exit(1);
-    }
+    const username = getRequiredEnvValue('STERN_USERNAME', 'STERN_USERNAME');
+    const password = getRequiredEnvValue('STERN_PASSWORD', 'STERN_PASSWORD');
 
     const result = await this.login(username, password);
 
@@ -203,8 +197,8 @@ class SternAuth {
 
   static async refreshAuth() {
     console.log('Attempting authentication refresh...');
-    const username = process.env.STERN_USERNAME;
-    const password = process.env.STERN_PASSWORD;
+    const username = getRequiredEnvValue('STERN_USERNAME', 'STERN_USERNAME');
+    const password = getRequiredEnvValue('STERN_PASSWORD', 'STERN_PASSWORD');
 
     const result = await this.login(username, password);
 

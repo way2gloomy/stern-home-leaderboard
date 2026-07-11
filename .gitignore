@@ -3,6 +3,7 @@ node_modules/
 dist/
 build/
 .env
+secrets/
 .DS_Store
 
 # User data directory (contains custom assets)

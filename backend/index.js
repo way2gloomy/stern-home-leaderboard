@@ -4,20 +4,34 @@ const cors = require('cors');
 const session = require('express-session');
 const apiRoutes = require('./routes');
 const SternAuth = require('./auth');
+const { getAllowedOrigins, getSessionSecret } = require('./config');
 
 const app = express();
+const allowedOrigins = getAllowedOrigins();
 
 // Middleware
 app.use(cors({
-  origin: true, // Allow all origins in development
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`Origin ${origin} is not allowed by CORS`));
+  },
   credentials: true,
 }));
 app.use(express.json());
 app.use(session({
-  secret: 'stern-leaderboard-secret',
+  secret: getSessionSecret(),
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }, // Set to true if using HTTPS
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 30 * 60 * 1000,
+  },
 }));
 
 // Routes

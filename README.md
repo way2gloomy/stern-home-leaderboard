@@ -61,17 +61,65 @@ cd stern-home-leaderboard
 
 # 2. Create your environment file
 cp .env.example .env
-# Edit .env with your Stern credentials
+# Edit .env with your Stern credentials if you want the simple local setup
 
-# 4. Start the application
+# 3. Start the application
 docker compose up -d
 
-# 5. Open in your browser
+# 4. Open in your browser
 open http://localhost:3000
 # (or your configured FRONTEND_PORT if changed)
 ```
 
 Images are published for `linux/amd64` and `linux/arm64` (Raspberry Pi friendly).
+
+## 🔐 Credentials and Security
+
+The backend requires your Stern account credentials to authenticate with Stern's services.
+
+### Recommended for Raspberry Pi / Docker deployments
+
+For Pi deployments, avoid storing credentials in a plain `.env` file whenever possible. The project now supports reading credentials from Docker secrets or host-mounted files:
+
+```bash
+mkdir -p secrets
+chmod 700 secrets
+printf 'your_stern_username\n' > secrets/stern_username
+printf 'your_stern_password\n' > secrets/stern_password
+chmod 600 secrets/stern_username secrets/stern_password
+```
+
+Then start the secrets-based compose file:
+
+```bash
+docker compose -f docker-compose.secrets.yml up -d --build
+```
+
+This uses the `STERN_USERNAME_FILE` and `STERN_PASSWORD_FILE` environment variables inside the backend container and keeps the values out of the project tree.
+
+### Simpler local/dev option
+
+If you are just testing locally, the original `.env` approach still works:
+
+```bash
+cp .env.example .env
+# Edit .env with your Stern credentials
+```
+
+The backend also supports these optional security settings:
+
+- `SESSION_SECRET` for a stronger session secret
+- `CORS_ALLOWED_ORIGINS` to restrict which hosts can call the API
+
+### Pi-side hardening
+
+For a Raspberry Pi deployment, the app now defaults to tighter local behavior:
+
+- restricted CORS origin handling
+- `httpOnly` and `sameSite` cookie settings for sessions
+- input validation for machine and location identifiers
+
+If you expose the app on your LAN, consider a host firewall such as `ufw` so only trusted subnets can reach it. For example, allow your dev subnet and your display/IOT subnet while blocking everything else.
 
 ## 🛠️ Quick Start for Development
 
@@ -105,24 +153,14 @@ Hot reload is enabled via volume mounts; dependencies stay inside the container 
 | **[🛠️ Development](docs/CONTRIBUTING.md)**        | Local development, architecture, and contributing   |
 | **[🚨 Troubleshooting](docs/TROUBLESHOOTING.md)** | Common issues and solutions                         |
 
-## ☕ Support This Project
+## 🙏 Attribution
 
-If this helps showcase your pinball scores, consider supporting the development:
+This project is based on the work of the original author, [brombomb](https://github.com/brombomb). Their original implementation and project direction are the foundation for this fork and its Raspberry Pi / local-home-network hardening work.
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y01L3NIG)
-
-- **🐛 Found a bug?** [Open an issue](https://github.com/brombomb/stern-home-leaderboard/issues)
-- **💡 Have an idea?** [Start a discussion](https://github.com/brombomb/stern-home-leaderboard/discussions)
-- **🛠️ Want to contribute?** See our [CONTRIBUTING Guide](docs/CONTRIBUTING.md)
+If you use or adapt this project, please keep that attribution in place.
 
 ## 📄 License
 
 This project is for personal use with Stern Pinball machines. Please ensure compliance with [Stern's API terms of service](https://insider.sternpinball.com/).
 
 ---
-
-<p align="center">
-  <strong>⚡ Powered by Stern Pinball's API</strong><br>
-  <a href="https://sternpinball.com/">Stern Pinball</a> •
-  <a href="https://insider.sternpinball.com/">Stern Insider Portal</a>
-</p>

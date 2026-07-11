@@ -3,6 +3,14 @@ const express = require('express');
 const SternAuth = require('./auth');
 const router = express.Router();
 
+function parsePositiveInteger(value) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+  return parsed;
+}
+
 // Constants
 const API_BASE_URL = 'https://cms.prd.sternpinball.io/api/v1/portal';
 const GAME_TEAMS_API_URL = 'https://api.prd.sternpinball.io/api/v1/portal';
@@ -246,7 +254,12 @@ router.get(
   '/high-scores/:machineId',
   SternAuth.requireAuth,
   async (req, res) => {
-    const url = `${API_BASE_URL}/game_machine_high_scores/?machine_id=${req.params.machineId}`;
+    const machineId = parsePositiveInteger(req.params.machineId);
+    if (!machineId) {
+      return res.status(400).json({ error: 'Invalid machine ID' });
+    }
+
+    const url = `${API_BASE_URL}/game_machine_high_scores/?machine_id=${machineId}`;
     await apiClient.handleApiRoute(
       url,
       req,
@@ -261,7 +274,12 @@ router.get(
   '/game-teams/:locationId',
   SternAuth.requireAuth,
   async (req, res) => {
-    const url = `${GAME_TEAMS_API_URL}/game_teams/?location_id=${req.params.locationId}`;
+    const locationId = parsePositiveInteger(req.params.locationId);
+    if (!locationId) {
+      return res.status(400).json({ error: 'Invalid location ID' });
+    }
+
+    const url = `${GAME_TEAMS_API_URL}/game_teams/?location_id=${locationId}`;
     await apiClient.handleApiRoute(url, req, res, 'Failed to fetch game teams');
   },
 );
@@ -271,7 +289,12 @@ router.get(
   '/machine-details/:machineId',
   SternAuth.requireAuth,
   async (req, res) => {
-    const url = `${API_BASE_URL}/game_machines/${req.params.machineId}`;
+    const machineId = parsePositiveInteger(req.params.machineId);
+    if (!machineId) {
+      return res.status(400).json({ error: 'Invalid machine ID' });
+    }
+
+    const url = `${API_BASE_URL}/game_machines/${machineId}`;
     await apiClient.handleApiRoute(
       url,
       req,
