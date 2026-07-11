@@ -1,0 +1,15 @@
+[Unit]
+Description=Stern Home Leaderboard
+After=docker.service network-online.target
+Wants=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/opt/stern-home-leaderboard
+ExecStart=/usr/bin/docker compose -f /opt/stern-home-leaderboard/docker-compose.secrets.yml up -d --build
+ExecStop=/usr/bin/docker compose -f /opt/stern-home-leaderboard/docker-compose.secrets.yml down
+ExecReload=/usr/bin/docker compose -f /opt/stern-home-leaderboard/docker-compose.secrets.yml up -d --build
+
+[Install]
+WantedBy=multi-user.target

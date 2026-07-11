@@ -121,6 +121,8 @@ For a Raspberry Pi deployment, the app now defaults to tighter local behavior:
 
 If you expose the app on your LAN, consider a host firewall such as `ufw` so only trusted subnets can reach it. For example, allow your dev subnet and your display/IOT subnet while blocking everything else.
 
+On a Raspberry Pi, the helper script also installs a systemd service so the compose stack starts automatically after reboot. The service expects the repo to be installed at `/opt/stern-home-leaderboard`.
+
 ## 🛠️ Quick Start for Development
 
 Iterate locally with live reload using the dev compose file:

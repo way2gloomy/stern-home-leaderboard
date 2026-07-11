@@ -11,6 +11,22 @@ if ! command -v ufw >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v docker >/dev/null 2>&1; then
+  echo "docker is not installed. Install Docker first." >&2
+  exit 1
+fi
+
+APP_DIR="/opt/stern-home-leaderboard"
+SERVICE_FILE="/etc/systemd/system/stern-home-leaderboard.service"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+mkdir -p "$APP_DIR"
+cp "$REPO_ROOT/scripts/stern-home-leaderboard.service" "$SERVICE_FILE"
+cp -a "$REPO_ROOT/." "$APP_DIR/"
+if [[ -d "$APP_DIR" ]]; then
+  chown -R root:root "$APP_DIR"
+fi
+
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow from 192.168.10.0/24 to any port 3000 comment 'Allow dev subnet access'
@@ -18,3 +34,8 @@ ufw allow from 192.168.30.0/24 to any port 3000 comment 'Allow display subnet ac
 ufw allow from 192.168.10.0/24 to any port 22 comment 'Allow SSH from dev subnet'
 ufw --force enable
 ufw status numbered
+
+systemctl daemon-reload
+systemctl enable stern-home-leaderboard.service
+systemctl restart stern-home-leaderboard.service
+systemctl status stern-home-leaderboard.service --no-pager || true
