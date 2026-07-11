@@ -1,7 +1,10 @@
 services:
   frontend:
     container_name: frontend
-    image: ghcr.io/brombomb/stern-home-leaderboard-frontend:${FRONTEND_TAG:-latest}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: stern-home-leaderboard-frontend:local
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     environment:
@@ -19,7 +22,10 @@ services:
       - backend
   backend:
     container_name: backend
-    image: ghcr.io/brombomb/stern-home-leaderboard-backend:${BACKEND_TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: stern-home-leaderboard-backend:local
     expose:
       - "5100"
     environment:
