@@ -28,17 +28,21 @@ Build and run the app from this checkout:
 git clone https://github.com/way2gloomy/stern-home-leaderboard.git
 cd stern-home-leaderboard
 
-# 2. Create the secrets files for Stern credentials
+# 2. Create your environment file and edit non-secret settings as needed
+cp .env.example .env
+# Example: adjust DEFAULT_COUNTRY, DEFAULT_STATE, DEFAULT_STATE_NAME, DEFAULT_CONTINENT, FRONTEND_PORT, and any optional settings
+
+# 3. Create the Stern credential secrets
 mkdir -p secrets
 chmod 700 secrets
 printf 'your_stern_username\n' > secrets/stern_username
 printf 'your_stern_password\n' > secrets/stern_password
 chmod 600 secrets/stern_username secrets/stern_password
 
-# 3. Start the application with the secrets-based compose file
+# 4. Start the application with the secrets-based compose file
 docker compose -f docker-compose.secrets.yml up -d --build
 
-# 4. Open in your browser
+# 5. Open in your browser
 open http://localhost:3000
 # (or your configured FRONTEND_PORT if changed)
 ```
@@ -49,9 +53,12 @@ The compose files build the frontend and backend images from the local source tr
 
 The backend requires your Stern account credentials to authenticate with Stern's services.
 
-### Recommended for Raspberry Pi / Docker deployments
+### Configuration layout
 
-For Pi deployments, avoid storing credentials in a plain `.env` file whenever possible. The project now supports reading credentials from Docker secrets or host-mounted files:
+- Use `.env` for non-secret runtime settings such as locale defaults (`DEFAULT_COUNTRY`, `DEFAULT_STATE`, `DEFAULT_STATE_NAME`, `DEFAULT_CONTINENT`), the frontend port, and optional security settings.
+- Use the `secrets/` directory for Stern credentials. The backend reads these via `STERN_USERNAME_FILE` and `STERN_PASSWORD_FILE`, keeping the values out of the repository and out of `.env`.
+
+Create the credential files with:
 
 ```bash
 mkdir -p secrets
@@ -60,18 +67,6 @@ printf 'your_stern_username\n' > secrets/stern_username
 printf 'your_stern_password\n' > secrets/stern_password
 chmod 600 secrets/stern_username secrets/stern_password
 ```
-
-Then start the secrets-based compose file:
-
-```bash
-docker compose -f docker-compose.secrets.yml up -d --build
-```
-
-This uses the `STERN_USERNAME_FILE` and `STERN_PASSWORD_FILE` environment variables inside the backend container and keeps the values out of the project tree.
-
-### Local/dev option
-
-For local development, you can still use the plain environment file approach if you prefer, but the recommended path for this project is the secrets directory shown above.
 
 The backend also supports these optional security settings:
 
@@ -103,14 +98,18 @@ Iterate locally with live reload using the dev compose file:
 git clone https://github.com/way2gloomy/stern-home-leaderboard.git
 cd stern-home-leaderboard
 
-# 2. Create your secrets files
+# 2. Create your environment file and edit non-secret settings as needed
+cp .env.example .env
+# Example: adjust DEFAULT_COUNTRY, DEFAULT_STATE, DEFAULT_STATE_NAME, DEFAULT_CONTINENT, FRONTEND_PORT, and any optional settings
+
+# 3. Create your Stern credential secrets
 mkdir -p secrets
 chmod 700 secrets
 printf 'your_stern_username\n' > secrets/stern_username
 printf 'your_stern_password\n' > secrets/stern_password
 chmod 600 secrets/stern_username secrets/stern_password
 
-# 3. Start dev containers (builds from local source)
+# 4. Start dev containers (builds from local source)
 docker compose -f docker-compose.dev.yml up --build
 
 # Frontend dev server: http://localhost:3000
