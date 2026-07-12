@@ -24,7 +24,7 @@
 - Try restarting the application containers
 
 ### Docker Issues
-- **Container won't start**: Check Docker logs with `docker-compose logs`
+- **Container won't start**: Check Docker logs with `docker compose logs`
 - **Port conflicts**:
   - Frontend port (default 3000): Set `FRONTEND_PORT` in `.env` to use a different port
   - Backend port 5100: This is only exposed internally and shouldn't conflict

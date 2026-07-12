@@ -55,10 +55,12 @@ data/
    }
    ```
 
-3. **Start the application**
+3. **Start the application** (if it isn't already running)
    ```bash
-   docker-compose up --build
+   docker compose -f docker-compose.secrets.yml up -d
    ```
+
+   `custom.css` is read from a volume-mounted directory, not baked into the image, so once the app is running you can add or edit it without restarting or rebuilding anything — just refresh the page.
 
 ## Asset Usage Examples
 
@@ -132,7 +134,7 @@ The application uses semantic CSS class names that you can target:
 - **Styles not applying**: Ensure the `/app/data` file path is correctly mounted in the container and the file is named `custom.css`.
 - **File not found (404 in dev console)**: Check the volume mount path and verify the file exists on the host.
 - **Override not working**: Use more specific CSS selectors or `!important` declarations
-- **Changes not visible**: Rebuild the container with `docker-compose up --build`
+- **Changes not visible**: Custom CSS is volume-mounted, not baked into the image, so no rebuild is needed — try a hard refresh (shift-reload) to bypass the browser cache
 
 For development, you can test CSS changes by temporarily editing the styles directly in your browser's developer tools before creating your custom CSS file. You can also edit the file in place and reload since a symlink exists between the host file and the web 
 server `/app/data` directory.

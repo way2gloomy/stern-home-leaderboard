@@ -8,55 +8,54 @@
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/way2gloomy/stern-home-leaderboard.git
    cd stern-home-leaderboard
    ```
 
-2. **Configure environment variables**
+2. **Configure non-secret environment variables**
 
-   Create a `.env` file in the project root:
-   ```env
-   # Required: Stern Pinball credentials
-   STERN_USERNAME=your_stern_username
-   # IMPORTANT: If your password contains special characters (e.g. $, !, &), wrap it in double quotes
-   # Example: STERN_PASSWORD="pa$$word!with$special&chars"
-   STERN_PASSWORD="your_stern_password"
-
-   # Optional: Default location (defaults to Colorado, USA)
-   DEFAULT_COUNTRY=US
-   DEFAULT_STATE=CO
-   DEFAULT_STATE_NAME=Colorado
-   DEFAULT_CONTINENT=NA
-
-   # Optional: Frontend port (default: 3000)
-   FRONTEND_PORT=3000
-
-   # Optional: Frontend data refresh interval in minutes (default: 60)
-   VITE_DATA_REFRESH_INTERVAL_MINUTES=60
-   ```
-
-3. **Start the application**
    ```bash
-   docker-compose up --build
+   cp .env.example .env
    ```
 
-4. **Access the application**
+   Edit `.env` and adjust `DEFAULT_COUNTRY`, `DEFAULT_STATE`, `DEFAULT_STATE_NAME`, `DEFAULT_CONTINENT`, `FRONTEND_PORT`, and any other optional settings as needed. Leave the `STERN_USERNAME`/`STERN_PASSWORD` lines alone — credentials are provided via the `secrets/` directory instead (see next step).
+
+3. **Create the Stern credential secrets**
+   ```bash
+   mkdir -p secrets
+   chmod 700 secrets
+   printf 'your_stern_username\n' > secrets/stern_username
+   printf 'your_stern_password\n' > secrets/stern_password
+   chmod 600 secrets/stern_username secrets/stern_password
+   ```
+
+4. **Start the application**
+   ```bash
+   docker compose -f docker-compose.secrets.yml up -d
+   ```
+
+   This pulls the prebuilt multi-arch images from GHCR rather than building locally — no local build step needed, which matters on slower hardware like a Raspberry Pi. See the main [README](../README.md) for the local-build/dev workflow (`docker-compose.dev.yml`).
+
+5. **Access the application**
    - Frontend: http://localhost:3000 (or your configured `FRONTEND_PORT`)
-   - Backend API: http://localhost:5100
    - Fullscreen mode: http://localhost:3000?machine=MACHINE_ID&fullscreen=true (adjust port as needed)
+
+   The backend API is not published to the host in this configuration — the frontend's nginx proxies `/api/*` to it internally. It's only reachable directly at `http://localhost:5100` when running `docker-compose.dev.yml`.
 
 ## Environment Variables
 
-### Required
-- `STERN_USERNAME`: Your Stern Pinball account username
-- `STERN_PASSWORD`: Your Stern Pinball account password
-   - If your password contains special characters (e.g. $, !, &), wrap it in double quotes: `STERN_PASSWORD="pa$$word!with$special&chars"`
+### Credentials
+Stern credentials are read from the `secrets/` directory (`STERN_USERNAME_FILE`/`STERN_PASSWORD_FILE`, wired up automatically by `docker-compose.secrets.yml`), keeping them out of `.env` and out of `docker inspect`/process-environment output. See step 3 above.
+
+If you don't need file-based secrets (e.g. a throwaway local test), `STERN_USERNAME`/`STERN_PASSWORD` can still be set directly as environment variables and used with plain `docker-compose.yml`, but this is not the recommended path for a real deployment.
 
 ### Optional
 - `DEFAULT_COUNTRY`: Default country code (default: "US")
 - `DEFAULT_STATE`: Default state code (default: "CO")
 - `DEFAULT_STATE_NAME`: Default state name (default: "Colorado")
 - `DEFAULT_CONTINENT`: Default continent code (default: "NA")
+- `SESSION_SECRET`: A stronger session secret (a random one is generated per process start if unset)
+- `CORS_ALLOWED_ORIGINS`: Comma-separated list of origins allowed to call the API (defaults to `localhost`/`127.0.0.1` on port 3000)
 
 ### Frontend Configuration
 - `FRONTEND_PORT`: Port for the frontend web server (default: 3000)
@@ -72,43 +71,24 @@
 
 ## Docker Deployment
 
-### Environment Variables for Docker
-
-When using Docker Compose, you can configure all environment variables in your `.env` file, or use the [docker-compose.yaml](/docker-compose.yml) file:
-
-```env
-# Required: Stern Pinball credentials
-STERN_USERNAME=your_stern_username
-STERN_PASSWORD=your_stern_password
-
-# Optional: Default location (defaults to Colorado, USA)
-DEFAULT_COUNTRY=US
-DEFAULT_STATE=CO
-DEFAULT_STATE_NAME=Colorado
-DEFAULT_CONTINENT=NA
-
-# Optional: Frontend port (default: 3000)
-FRONTEND_PORT=3000
-
-# Optional: Frontend data refresh interval in minutes (default: 60)
-VITE_DATA_REFRESH_INTERVAL_MINUTES=60
-```
-
-### Production Build
 ```bash
-# Build and start containers
-docker-compose up --build -d
+# Start containers (pulls prebuilt GHCR images)
+docker compose -f docker-compose.secrets.yml up -d
 
 # View logs
-docker-compose logs -f
+docker compose -f docker-compose.secrets.yml logs -f
 
 # Stop containers
-docker-compose down
+docker compose -f docker-compose.secrets.yml down
 ```
 
-> **Note**: Environment variables can be configured in a `.env` file or passed directly to docker-compose.
+For a Raspberry Pi deployment with an auto-starting systemd service and firewall rules, see the Pi-side hardening section of the main [README](../README.md).
 
 ## Local Development
+
+For live reload with Docker, use `docker compose -f docker-compose.dev.yml up --build` (see the main [README](../README.md)).
+
+To run outside Docker entirely:
 
 ### Frontend
 ```bash
@@ -123,3 +103,5 @@ cd backend
 npm install
 npm run dev
 ```
+
+This mode reads `STERN_USERNAME`/`STERN_PASSWORD` directly from your `.env` file rather than `secrets/`.
