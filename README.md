@@ -28,12 +28,15 @@ Build and run the app from this checkout:
 git clone https://github.com/way2gloomy/stern-home-leaderboard.git
 cd stern-home-leaderboard
 
-# 2. Create your environment file
-cp .env.example .env
-# Edit .env with your Stern credentials if you want the simple local setup
+# 2. Create the secrets files for Stern credentials
+mkdir -p secrets
+chmod 700 secrets
+printf 'your_stern_username\n' > secrets/stern_username
+printf 'your_stern_password\n' > secrets/stern_password
+chmod 600 secrets/stern_username secrets/stern_password
 
-# 3. Start the application
-docker compose up -d
+# 3. Start the application with the secrets-based compose file
+docker compose -f docker-compose.secrets.yml up -d --build
 
 # 4. Open in your browser
 open http://localhost:3000
@@ -66,14 +69,9 @@ docker compose -f docker-compose.secrets.yml up -d --build
 
 This uses the `STERN_USERNAME_FILE` and `STERN_PASSWORD_FILE` environment variables inside the backend container and keeps the values out of the project tree.
 
-### Simpler local/dev option
+### Local/dev option
 
-If you are just testing locally, the original `.env` approach still works:
-
-```bash
-cp .env.example .env
-# Edit .env with your Stern credentials
-```
+For local development, you can still use the plain environment file approach if you prefer, but the recommended path for this project is the secrets directory shown above.
 
 The backend also supports these optional security settings:
 
@@ -105,9 +103,12 @@ Iterate locally with live reload using the dev compose file:
 git clone https://github.com/way2gloomy/stern-home-leaderboard.git
 cd stern-home-leaderboard
 
-# 2. Create your environment file
-cp .env.example .env
-# Edit .env with your Stern credentials
+# 2. Create your secrets files
+mkdir -p secrets
+chmod 700 secrets
+printf 'your_stern_username\n' > secrets/stern_username
+printf 'your_stern_password\n' > secrets/stern_password
+chmod 600 secrets/stern_username secrets/stern_password
 
 # 3. Start dev containers (builds from local source)
 docker compose -f docker-compose.dev.yml up --build
