@@ -7,9 +7,10 @@ Wants=docker.service network-online.target
 Type=oneshot
 RemainAfterExit=true
 WorkingDirectory=/opt/stern-home-leaderboard
-ExecStart=/usr/bin/docker compose -f /opt/stern-home-leaderboard/docker-compose.secrets.yml up -d --build
-ExecStop=/usr/bin/docker compose -f /opt/stern-home-leaderboard/docker-compose.secrets.yml down
-ExecReload=/usr/bin/docker compose -f /opt/stern-home-leaderboard/docker-compose.secrets.yml up -d --build
+EnvironmentFile=/opt/stern-home-leaderboard/.env
+ExecStart=/bin/sh -c '/usr/bin/docker compose --env-file /opt/stern-home-leaderboard/.env -f /opt/stern-home-leaderboard/docker-compose.secrets.yml pull && /usr/bin/docker compose --env-file /opt/stern-home-leaderboard/.env -f /opt/stern-home-leaderboard/docker-compose.secrets.yml up -d'
+ExecStop=/usr/bin/docker compose --env-file /opt/stern-home-leaderboard/.env -f /opt/stern-home-leaderboard/docker-compose.secrets.yml down
+ExecReload=/bin/sh -c '/usr/bin/docker compose --env-file /opt/stern-home-leaderboard/.env -f /opt/stern-home-leaderboard/docker-compose.secrets.yml pull && /usr/bin/docker compose --env-file /opt/stern-home-leaderboard/.env -f /opt/stern-home-leaderboard/docker-compose.secrets.yml up -d'
 
 [Install]
 WantedBy=multi-user.target

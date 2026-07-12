@@ -4,9 +4,13 @@ class SternAuth {
   static authData = null;
   static cookies = null;
   static lastAuthTime = null;
+  static cachedNextActionHash = null;
   static AUTH_EXPIRY_TIME = 30 * 60 * 1000; // 30 minutes
 
-  static async getNextActionHash() {
+  static async getNextActionHash(forceRefresh = false) {
+    if (SternAuth.cachedNextActionHash && !forceRefresh) {
+      return SternAuth.cachedNextActionHash;
+    }
     try {
       const pageResponse = await fetch(
         'https://insider.sternpinball.com/login',
@@ -62,6 +66,7 @@ class SternAuth {
 
       if (hash) {
         console.log('Found Next-Action hash:', hash);
+        SternAuth.cachedNextActionHash = hash;
         return hash;
       }
 
@@ -72,9 +77,9 @@ class SternAuth {
     }
   }
 
-  static async login(username, password) {
+  static async login(username, password, retryOnStaleHash = true) {
     try {
-      // Dynamically fetch current Next-Action hash
+      // Reuse the cached Next-Action hash; it only changes when Stern redeploys their frontend
       const nextActionHash = await SternAuth.getNextActionHash();
 
       // Send login data as JSON array like the browser does
@@ -110,6 +115,16 @@ class SternAuth {
           redirect: 'manual',
         },
       );
+
+      // A non-200 response (as opposed to a 200 with authenticated:false) suggests
+      // the cached Next-Action hash is stale, e.g. after Stern redeploys their frontend.
+      if (loginResponse.status !== 200 && retryOnStaleHash) {
+        console.warn(
+          `Login request returned ${loginResponse.status}; refreshing Next-Action hash and retrying once`,
+        );
+        await SternAuth.getNextActionHash(true);
+        return SternAuth.login(username, password, false);
+      }
 
       // Extract cookies and check for JWT token
       const cookies = loginResponse.headers.get('set-cookie');

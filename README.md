@@ -21,7 +21,7 @@ A beautiful web application for displaying pinball machine high scores from your
 
 ## 🚀 Quick Start (Docker Compose)
 
-Build and run the app from this checkout:
+Pull and run the app using the prebuilt images:
 
 ```bash
 # 1. Clone the repository
@@ -36,14 +36,14 @@ printf 'your_stern_password\n' > secrets/stern_password
 chmod 600 secrets/stern_username secrets/stern_password
 
 # 3. Start the application with the secrets-based compose file
-docker compose -f docker-compose.secrets.yml up -d --build
+docker compose -f docker-compose.secrets.yml up -d
 
 # 4. Open in your browser
 open http://localhost:3000
 # (or your configured FRONTEND_PORT if changed)
 ```
 
-The compose files build the frontend and backend images from the local source tree by default, which is the workflow used for this fork and Raspberry Pi deployments.
+`docker-compose.yml` and `docker-compose.secrets.yml` pull prebuilt multi-arch images from GHCR (`ghcr.io/way2gloomy/stern-home-leaderboard-{frontend,backend}:latest`), published by [`.github/workflows/publish-images.yml`](.github/workflows/publish-images.yml) on every push to `main`. This avoids building on-device, which matters on slower hardware like a Raspberry Pi 3. For local development with live reload from source, use `docker-compose.dev.yml` instead (see below).
 
 ## 🔐 Credentials and Security
 

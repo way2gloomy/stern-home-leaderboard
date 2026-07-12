@@ -2,10 +2,8 @@ services:
   frontend:
     container_name: frontend
     restart: unless-stopped
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: stern-home-leaderboard-frontend:local
+    image: ghcr.io/way2gloomy/stern-home-leaderboard-frontend:latest
+    mem_limit: 64m
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     environment:
@@ -24,10 +22,8 @@ services:
   backend:
     container_name: backend
     restart: unless-stopped
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: stern-home-leaderboard-backend:local
+    image: ghcr.io/way2gloomy/stern-home-leaderboard-backend:latest
+    mem_limit: 256m
     expose:
       - "5100"
     environment:
