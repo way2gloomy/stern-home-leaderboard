@@ -58,8 +58,3 @@ ufw allow from 192.168.30.0/24 to any port 3000 comment 'Allow display subnet ac
 ufw allow from 192.168.10.0/24 to any port 22 comment 'Allow SSH from dev subnet'
 ufw --force enable
 ufw status numbered
-
-systemctl daemon-reload
-systemctl enable stern-home-leaderboard.service
-systemctl restart stern-home-leaderboard.service
-systemctl status stern-home-leaderboard.service --no-pager || true
