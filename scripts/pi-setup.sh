@@ -42,6 +42,15 @@ if [[ -d "$APP_DIR" ]]; then
   chown -R "$INSTALL_USER:$INSTALL_USER" "$APP_DIR"
 fi
 
+if grep -q 'replace_with_stern_' "$APP_DIR/secrets/stern_username" "$APP_DIR/secrets/stern_password"; then
+  echo "Placeholder Stern credentials detected in $APP_DIR/secrets/. Update them before starting the stack." >&2
+else
+  systemctl daemon-reload
+  systemctl enable stern-home-leaderboard.service
+  systemctl restart stern-home-leaderboard.service
+  systemctl status stern-home-leaderboard.service --no-pager || true
+fi
+
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow from 192.168.10.0/24 to any port 3000 comment 'Allow dev subnet access'
