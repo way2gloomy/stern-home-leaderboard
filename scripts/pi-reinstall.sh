@@ -30,6 +30,10 @@ if [[ -z "$EXTRACTED_DIR" ]]; then
   exit 1
 fi
 
+if [[ -f "$INSTALL_DIR/.env" ]]; then
+  cp "$INSTALL_DIR/.env" "$TMP_DIR/.env"
+fi
+
 if [[ -d "$INSTALL_DIR/secrets" ]]; then
   cp -a "$INSTALL_DIR/secrets" "$TMP_DIR/secrets-backup"
 fi
@@ -37,6 +41,12 @@ fi
 rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 cp -a "$EXTRACTED_DIR/." "$INSTALL_DIR/"
+
+if [[ -f "$TMP_DIR/.env" ]]; then
+  cp "$TMP_DIR/.env" "$INSTALL_DIR/.env"
+elif [[ ! -f "$INSTALL_DIR/.env" ]]; then
+  cp "$INSTALL_DIR/.env.example" "$INSTALL_DIR/.env"
+fi
 
 if [[ -d "$INSTALL_DIR/secrets" && -d "$TMP_DIR/secrets-backup" ]]; then
   mkdir -p "$INSTALL_DIR/secrets"
