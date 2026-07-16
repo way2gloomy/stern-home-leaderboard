@@ -15,12 +15,17 @@ class SternAuth {
       const pageResponse = await fetch(
         'https://insider.sternpinball.com/login',
         {
+          signal: AbortSignal.timeout(15000),
           headers: {
             'User-Agent':
               'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:142.0) Gecko/20100101 Firefox/142.0',
           },
         },
       );
+
+      if (!pageResponse.ok) {
+        throw new Error(`Failed to fetch login page: status ${pageResponse.status}`);
+      }
 
       const html = await pageResponse.text();
 
@@ -43,7 +48,10 @@ class SternAuth {
       // Fetch all scripts in parallel and look for "performLogin"
       const promises = scriptUrls.map(async (url) => {
         try {
-          const jsResponse = await fetch(url);
+          const jsResponse = await fetch(url, { signal: AbortSignal.timeout(15000) });
+          if (!jsResponse.ok) {
+            return null;
+          }
           const js = await jsResponse.text();
 
           const target = '"performLogin"';
@@ -90,6 +98,7 @@ class SternAuth {
         'https://insider.sternpinball.com/login',
         {
           method: 'POST',
+          signal: AbortSignal.timeout(15000),
           headers: {
             'User-Agent':
               'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:142.0) Gecko/20100101 Firefox/142.0',
@@ -174,6 +183,13 @@ class SternAuth {
 
         return { success: true, authData, cookies };
       } else {
+        if (retryOnStaleHash) {
+          console.warn(
+            'Login failed with cached Next-Action hash; refreshing hash and retrying once',
+          );
+          await SternAuth.getNextActionHash(true);
+          return SternAuth.login(username, password, false);
+        }
         return {
           success: false,
           error: 'Login failed - authentication unsuccessful',
@@ -181,6 +197,17 @@ class SternAuth {
       }
     } catch (err) {
       console.error('Login error:', err);
+      if (retryOnStaleHash) {
+        console.warn(
+          'Login errored with cached Next-Action hash; refreshing hash and retrying once',
+        );
+        try {
+          await SternAuth.getNextActionHash(true);
+          return await SternAuth.login(username, password, false);
+        } catch (retryErr) {
+          console.error('Retry after refreshed hash also failed:', retryErr.message);
+        }
+      }
       return { success: false, error: err.message };
     }
   }
